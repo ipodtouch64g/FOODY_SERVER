@@ -1,0 +1,5 @@
+node_modules/*
+.tern-project
+dist/*
+data-*.json
+logs.txt
