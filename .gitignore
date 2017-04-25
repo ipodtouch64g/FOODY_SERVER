@@ -1,7 +1,6 @@
 node_modules
 npm-debug.log
 .tern-project
-dist
 data-*.json
 logs.txt
 
