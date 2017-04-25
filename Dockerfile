@@ -13,7 +13,7 @@ RUN npm install
 COPY . /app
 
 # Bind app to the specified port to be mapped by the Docker daemon.
-EXPOSE 8080
+EXPOSE 80
 
 # Define the command to run app.
 CMD ["npm", "start"]

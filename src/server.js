@@ -11,7 +11,7 @@ app.use(express.static('dist'));
 app.use('/api', postRouter);
 app.use(errorHandler);
 
-const port = 8080;
+const port = 80;
 app.listen(port, () => {
     console.log(`Server is up and running on port ${port}...`);
 });
