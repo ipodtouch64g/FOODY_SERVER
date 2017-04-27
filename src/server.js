@@ -7,7 +7,9 @@ const errorHandler = require('./middleware/error-handler.js');
 const app = express();
 
 // app.use(requestLogger);
-app.use(express.static('dist'));
+app.use(express.static('dist', {
+    maxAge: 86400000 // 1 day
+}));
 app.use('/api', postRouter);
 app.use(errorHandler);
 
