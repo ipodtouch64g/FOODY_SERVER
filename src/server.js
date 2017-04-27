@@ -8,7 +8,9 @@ const app = express();
 
 // app.use(requestLogger);
 app.use(express.static('dist', {
-    maxAge: 86400000 // 1 day
+    setHeaders: (res, path, stat) => {
+        res.set('Cache-Control', 'public, s-maxage=86400');
+    }
 }));
 app.use('/api', postRouter);
 app.use(errorHandler);
