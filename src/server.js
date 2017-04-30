@@ -13,6 +13,7 @@ app.use(express.static('dist', {
     }
 }));
 app.use('/api', postRouter);
+app.get('/*', (req, res) => res.redirect('/'));
 app.use(errorHandler);
 
 const port = 8080;
