@@ -1,26 +1,17 @@
-const fs = require('fs');
-
+if (!global.db) {
+    const pgp = require('pg-promise')();
+    db = pgp(process.env.DB_URL);
+}
 const postModel = require('./posts.js');
 
 function create(postId, mood) {
-    return new Promise((resolve, reject) => {
-        let votedPost = null;
-        postModel.list().then(posts => {
-            posts = posts.map(p => {
-                if (p.id === postId) {
-                    votedPost = p;
-                    p[mood.toLowerCase() + 'Votes']++;
-                }
-                return p;
-            });
-
-            fs.writeFile('data-posts.json', JSON.stringify(posts), err => {
-                if (err) reject(err);
-
-                resolve(votedPost);
-            });
-        });
-    });
+    const sql = `
+        UPDATE posts
+        SET $2:name = $2:name + 1
+        WHERE id = $1
+        RETURNING *
+    `;
+    return db.one(sql, [postId, mood.toLowerCase() + 'Votes']);
 }
 
 module.exports = {

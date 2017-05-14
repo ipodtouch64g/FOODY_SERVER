@@ -1,55 +1,27 @@
-const fs = require('fs');
-const uuid = require('uuid/v4');
-const moment = require('moment');
+if (!global.db) {
+    const pgp = require('pg-promise')();
+    db = pgp(process.env.DB_URL);
+}
 
 function list(searchText = '') {
-    return new Promise((resolve, reject) => {
-        if (!fs.existsSync('data-posts.json')) {
-            fs.writeFileSync('data-posts.json', '');
-        }
-
-        fs.readFile('data-posts.json', 'utf8', (err, data) => {
-            if (err) reject(err);
-            
-            let posts = data ? JSON.parse(data) : [];
-            if (posts.length > 0 && searchText) {
-                posts = posts.filter(p => {
-                    return p.text.toLowerCase().indexOf(searchText.toLowerCase()) !== -1
-                });
-            }
-            resolve(posts);
-        });
-    });
+    const where = searchText?`WHERE address ILIKE '%$1:value%' OR name ILIKE '%$1:value%' OR category ILIKE '%$1:value%'`:'';
+    const sql = `
+        SELECT *
+        FROM restaurant
+        ${where}
+        ORDER BY id DESC
+        LIMIT 15
+    `;
+    return db.any(sql, searchText);
 }
 
 function create(mood, text) {
-    return new Promise((resolve, reject) => {
-        const newPost = {
-            id: uuid(),
-            mood: mood.charAt(0).toUpperCase() + mood.slice(1),
-            text: text,
-            ts: moment().unix(),
-            clearVotes: 0,
-            cloudsVotes: 0,
-            drizzleVotes: 0,
-            rainVotes: 0,
-            thunderVotes: 0,
-            snowVotes: 0,
-            windyVotes: 0
-        };
-
-        list().then(posts => {
-            posts = [
-                newPost,
-                ...posts
-            ];
-            fs.writeFile('data-posts.json', JSON.stringify(posts), err => {
-                if (err) reject(err);
-
-                resolve(newPost);
-            });
-        });
-    });
+    const sql = `
+        INSERT INTO posts ($<this:name>)
+        VALUES ($<mood>, $<text>)
+        RETURNING *
+    `;
+    return db.one(sql, {mood, text});
 }
 
 module.exports = {
