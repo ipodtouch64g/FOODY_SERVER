@@ -11,22 +11,29 @@ router.use(bodyParser.json());
 router.use(accessController); // Allows cross-origin HTTP requests
 
 // List
-router.get('/posts', function(req, res, next) {
+router.get('/rests', function(req, res, next) {
     const {searchText} = req.query;
     postModel.list(searchText).then(posts => {
         res.json(posts);
     }).catch(next);
 });
 
+router.get('/posts', function(req, res, next) {
+    const {r_id} = req.query;
+    postModel.listPost(r_id).then(posts => {
+        res.json(posts);
+    }).catch(next);
+});
+
 // Create
 router.post('/posts', function(req, res, next) {
-    const {mood, text} = req.body;
-    if (!mood || !text) {
-        const err = new Error('Mood and text are required');
+    const {text,id} = req.body;
+    if (!text) {
+        const err = new Error('id and text are required');
         err.status = 400;
         throw err;
     }
-    postModel.create(mood, text).then(post => {
+    postModel.create(text,id).then(post => {
         res.json(post);
     }).catch(next);
 });

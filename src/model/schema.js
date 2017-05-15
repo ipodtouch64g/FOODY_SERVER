@@ -11,10 +11,11 @@ const schemaSql = `
 
     -- Drop (droppable only when no dependency)
     DROP TABLE IF EXISTS restaurant;
+    DROP TABLE IF EXISTS post;
 
-    -- Create
+    -- Create restaurant
     CREATE TABLE restaurant (
-        id              serial PRIMARY KEY NOT NULL,
+        id              integer PRIMARY KEY NOT NULL,
         name            text NOT NULL,
         category        text NOT NULL,
         address         text NOT NULL,
@@ -26,6 +27,14 @@ const schemaSql = `
         review1         text NOT NULL,
         review2         text NOT NULL,
         review3         text NOT NULL
+    );
+
+    -- Create post
+    CREATE TABLE post (
+        p_id            serial PRIMARY KEY NOT NULL,
+        r_id            integer references restaurant(id),
+        text            text NOT NULL,
+        ts              bigint NOT NULL DEFAULT (extract(epoch from now()))
     );
 `;
 function Populate_recur(index,el){
