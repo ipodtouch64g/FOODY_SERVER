@@ -5,8 +5,8 @@ if (!global.db) {
     db = pgp(process.env.DB_URL);
 }
 
-function list(searchText = '',place = '',category = '',price = 0,ascending = 'true') {
-    const order = ascending==='false'?'DESC':'ASC';
+function list(searchText = '',place = '',category = '',price = 0,ascending = 'no') {
+    const order = ascending==='ture'?'ORDER BY average ASC':(ascending ==='false'?'ORDER BY average DESC':'ORDER BY id ASC');
     let where = searchText?`WHERE (address ILIKE '%$1:value%' OR name ILIKE '%$1:value%' OR category ILIKE '%$1:value%')`:'';
     if(searchText&&place)
       where+= ` AND address ILIKE '%$2:value%'`;
@@ -18,7 +18,7 @@ function list(searchText = '',place = '',category = '',price = 0,ascending = 'tr
         SELECT *
         FROM restaurant
         ${where}
-        ORDER BY average ${order}
+        ${order}
         LIMIT 25
     `;
     console.log (sql, searchText ,place ,category ,price);

@@ -12971,10 +12971,9 @@ module.exports = function bind(fn, thisArg) {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony export (immutable) */ __webpack_exports__["c"] = searchListFromApi;
-/* harmony export (immutable) */ __webpack_exports__["b"] = sortListFromApi;
-/* harmony export (immutable) */ __webpack_exports__["d"] = listPostFromApi;
-/* harmony export (immutable) */ __webpack_exports__["e"] = createPostFromApi;
+/* harmony export (immutable) */ __webpack_exports__["b"] = searchListFromApi;
+/* harmony export (immutable) */ __webpack_exports__["c"] = listPostFromApi;
+/* harmony export (immutable) */ __webpack_exports__["d"] = createPostFromApi;
 /* harmony export (immutable) */ __webpack_exports__["a"] = createRest;
 /* unused harmony export createVote */
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_axios__ = __webpack_require__(417);
@@ -12982,10 +12981,10 @@ module.exports = function bind(fn, thisArg) {
 
 
 // Develop server URL
-// const postBaseUrl = 'http://localhost:3000/api';
+var postBaseUrl = 'http://localhost:3000/api';
 
 // Staging server URL
-var postBaseUrl = 'http://foody.us-west-2.elasticbeanstalk.com/api';
+// const postBaseUrl = 'http://foody.us-west-2.elasticbeanstalk.com/api';
 
 // Production server URL
 // const postBaseUrl = 'http://weathermood-production.us-west-2.elasticbeanstalk.com/api';
@@ -12995,6 +12994,7 @@ function searchListFromApi() {
     var place = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
     var category = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '';
     var price = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 0;
+    var ascending = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 'no';
 
     var url = postBaseUrl + '/rests';
     var query = [];
@@ -13002,25 +13002,8 @@ function searchListFromApi() {
     if (place) query.push('place=' + place);
     if (category) query.push('category=' + category);
     if (price !== 0) query.push('price=' + price);
+    query.push('ascending=' + ascending);
     if (query.length) url += '?' + query.join('&');
-
-    console.log('Making GET request to: ' + url);
-
-    return __WEBPACK_IMPORTED_MODULE_0_axios___default.a.get(url).then(function (res) {
-        if (res.status !== 200) throw new Error('Unexpected response code: ' + res.status);
-        return res.data;
-    });
-}
-
-function sortListFromApi() {
-    var searchText = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
-    var ascending = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
-
-    var url = postBaseUrl + '/rests';
-    var query = [];
-    if (searchText) query.push('searchText=' + searchText);
-    query.push('ascending=' + (ascending ? 'true' : 'false'));
-    url += '?' + query.join('&');
 
     console.log('Making GET request to: ' + url);
 
@@ -29076,6 +29059,10 @@ var Main = function (_React$Component) {
       openShop: false,
       indexOfList: 0,
       Loading: false,
+      ascending: 'no',
+      city: '',
+      category: '',
+      price: 0,
       posts: []
     };
     _this.handleResort = _this.handleResort.bind(_this);
@@ -29111,9 +29098,10 @@ var Main = function (_React$Component) {
       var _this3 = this;
 
       this.setState({
-        Loading: true
+        Loading: true,
+        ascending: asc ? 'ture' : 'false'
       }, function () {
-        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10_api_posts_js__["b" /* sortListFromApi */])(_this3.state.searchText, asc).then(function (posts) {
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10_api_posts_js__["b" /* searchListFromApi */])(_this3.state.searchText, _this3.state.city, _this3.state.category, _this3.state.price, _this3.state.ascending).then(function (posts) {
           _this3.setState({
             posts: posts,
             Loading: false
@@ -29150,9 +29138,13 @@ var Main = function (_React$Component) {
       var _this5 = this;
 
       this.setState({
-        Loading: true
+        Loading: true,
+        city: '',
+        category: '',
+        price: '',
+        ascending: 'no'
       }, function () {
-        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10_api_posts_js__["c" /* searchListFromApi */])(searchText).then(function (posts) {
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10_api_posts_js__["b" /* searchListFromApi */])(searchText, _this5.state.city, _this5.state.category, _this5.state.price, _this5.state.ascending).then(function (posts) {
           _this5.setState({
             posts: posts,
             Loading: false
@@ -29169,13 +29161,16 @@ var Main = function (_React$Component) {
     }
   }, {
     key: 'handleADVsearch',
-    value: function handleADVsearch(place, catagory, price) {
+    value: function handleADVsearch(place, category, price) {
       var _this6 = this;
 
       this.setState({
-        Loading: true
+        Loading: true,
+        city: place,
+        category: category,
+        price: price
       }, function () {
-        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10_api_posts_js__["c" /* searchListFromApi */])(_this6.state.searchText, place, catagory, price).then(function (posts) {
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10_api_posts_js__["b" /* searchListFromApi */])(_this6.state.searchText, place, category, price, _this6.state.ascending).then(function (posts) {
           _this6.setState({
             posts: posts,
             Loading: false
@@ -30462,10 +30457,10 @@ var AddDialog = function (_React$Component) {
     };
 
     _this.state = {
-      valueName: 'Restaurant Name',
-      valueCategory: 'Restaurant Category',
+      valueName: '',
+      valueCategory: '',
       valueAddress: 'Restaurant address',
-      valueAverage: 'Restaurant Average',
+      valueAverage: 100,
       valueTelephone: 'Restaurant Telephone'
     };
 
@@ -30507,13 +30502,12 @@ var AddDialog = function (_React$Component) {
         __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
           __WEBPACK_IMPORTED_MODULE_1_material_ui_Dialog___default.a,
           {
-            title: 'Dialog With Date Picker',
+            title: 'Add New Restaurant',
             actions: actions,
             modal: false,
             open: this.props.open,
             onRequestClose: this.handleClose
           },
-          '\u9910\u5EF3\u52A0\u52A0',
           __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
             'div',
             null,
@@ -32159,7 +32153,7 @@ var Shops = function (_React$Component) {
     value: function listPost(r_id) {
       var _this2 = this;
 
-      __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5_api_posts_js__["d" /* listPostFromApi */])(r_id).then(function (posts) {
+      __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5_api_posts_js__["c" /* listPostFromApi */])(r_id).then(function (posts) {
         _this2.setState({
           posts: posts
         }, function () {
@@ -32175,7 +32169,7 @@ var Shops = function (_React$Component) {
     value: function createPosts(text, r_id) {
       var _this3 = this;
 
-      __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5_api_posts_js__["e" /* createPostFromApi */])(text, r_id).then(function (posts) {
+      __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5_api_posts_js__["d" /* createPostFromApi */])(text, r_id).then(function (posts) {
         _this3.listPost(r_id);
         console.log("ajax call", _this3.state.posts);
       }).catch(function (err) {
