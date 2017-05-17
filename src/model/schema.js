@@ -10,12 +10,12 @@ const schemaSql = `
     CREATE EXTENSION IF NOT EXISTS pg_trgm;
 
     -- Drop (droppable only when no dependency)
-    DROP TABLE IF EXISTS restaurant;
     DROP TABLE IF EXISTS post;
+    DROP TABLE IF EXISTS restaurant;
 
     -- Create restaurant
     CREATE TABLE restaurant (
-        id              integer PRIMARY KEY NOT NULL,
+        id              serial PRIMARY KEY NOT NULL,
         name            text NOT NULL,
         category        text NOT NULL,
         address         text NOT NULL,
@@ -38,11 +38,11 @@ const schemaSql = `
     );
 `;
 function Populate_recur(index,el){
-    let dataSql = `
+    if(el){
+      let dataSql = `
       -- Populate restaurant
-      INSERT INTO restaurant (id,name,category,average,telephon,address,image,lat,lng,review1,review2,review3)
+      INSERT INTO restaurant (name,category,average,telephon,address,image,lat,lng,review1,review2,review3)
       SELECT
-          ${el.id},
           $1,
           $2,
           ${parseInt(el.average)},
@@ -54,15 +54,14 @@ function Populate_recur(index,el){
           $6,
           $7,
           $8;
-    `;
+          `;
     if(index === lastRest){
       db.none(dataSql,[el.name,el.category,el.tele,el.address,el.img_src,el.review[0],el.review.length>1?el.review[1]:"-1",
                       el.review.length>2?el.review[2]:"-1"]).then(() => {
-          console.log('Data populated');
-          if(fileNum<9){
-            fileNum+=1;
+          console.log(`Data${fileNum} populated`);
+          if(fileNum<20){
+              fileNum+=1;
             restaurant = require(`./data${fileNum}.json`);
-            console.log(`Data${fileNum} populated`);
             Populate_recur(0,restaurant.restaurant[0]);
           }
           else{
@@ -76,6 +75,23 @@ function Populate_recur(index,el){
           Populate_recur(index+1,restaurant.restaurant[index+1]);
       });
     }
+  }
+  else {
+    if(index === lastRest){
+      console.log(`Data${fileNum} populated`);
+      if(fileNum<20){
+          fileNum+=1;
+        restaurant = require(`./data${fileNum}.json`);
+        Populate_recur(0,restaurant.restaurant[0]);
+      }
+      else{
+        pgp.end();
+      }
+    }
+    else {
+      Populate_recur(index+1,restaurant.restaurant[index+1]);
+    }
+  }
 }
 
 db.none(schemaSql).then(() => {

@@ -12,8 +12,8 @@ router.use(accessController); // Allows cross-origin HTTP requests
 
 // List
 router.get('/rests', function(req, res, next) {
-    const {searchText} = req.query;
-    postModel.list(searchText).then(posts => {
+    const {searchText,place,category,price,ascending} = req.query;
+    postModel.list(searchText,place,category,price,ascending).then(posts => {
         res.json(posts);
     }).catch(next);
 });
@@ -33,8 +33,20 @@ router.post('/posts', function(req, res, next) {
         err.status = 400;
         throw err;
     }
-    postModel.create(text,id).then(post => {
+    postModel.createPost(text,id).then(post => {
         res.json(post);
+    }).catch(next);
+});
+
+router.post('/rests', function(req, res, next) {
+    const {newRest} = req.body;
+    if (!newRest.name||!newRest.category) {
+        const err = new Error('id and text are required');
+        err.status = 400;
+        throw err;
+    }
+    postModel.create(newRest).then(n => {
+        res.json(n);
     }).catch(next);
 });
 

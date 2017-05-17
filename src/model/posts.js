@@ -5,16 +5,24 @@ if (!global.db) {
     db = pgp(process.env.DB_URL);
 }
 
-function list(searchText = '') {
-    const where = searchText?`WHERE address ILIKE '%$1:value%' OR name ILIKE '%$1:value%' OR category ILIKE '%$1:value%'`:'';
+function list(searchText = '',place = '',category = '',price = 0,ascending = 'true') {
+    const order = ascending==='false'?'DESC':'ASC';
+    let where = searchText?`WHERE (address ILIKE '%$1:value%' OR name ILIKE '%$1:value%' OR category ILIKE '%$1:value%')`:'';
+    if(searchText&&place)
+      where+= ` AND address ILIKE '%$2:value%'`;
+    if(searchText&&category)
+      where+= ` AND category ILIKE '%$3:value%'`;
+    if(searchText&&price)
+      where+= ` AND average <= $4 AND average > 0`;
     const sql = `
         SELECT *
         FROM restaurant
         ${where}
-        ORDER BY id DESC
-        LIMIT 15
+        ORDER BY average ${order}
+        LIMIT 25
     `;
-    return db.any(sql, searchText);
+    console.log (sql, searchText ,place ,category ,price);
+    return db.any(sql, [searchText ,place ,category ,price]);
 }
 
 function listPost(r_id = 0) {
@@ -22,13 +30,21 @@ function listPost(r_id = 0) {
         SELECT *
         FROM post
         WHERE r_id = $1
-        ORDER BY p_id DESC
+        ORDER BY p_id ASC
         LIMIT 15
     `;
     return db.any(sql, r_id);
 }
+function create(newRest) {
+    const sql = `
+        INSERT INTO restaurant (name,category,average,telephon,address,image,lat,lng,review1,review2,review3)
+        VALUES ($<name>, $<category>, $<average>, $<telephon>, $<address>,'-1','24.7947253','120.9932316','-1','-1','-1')
+        RETURNING *
+    `;
+    return db.one(sql, newRest);
+}
 
-function create(text, r_id) {
+function createPost(text, r_id) {
     ts= moment().unix();
     const sql = `
         INSERT INTO post ($<this:name>)
@@ -41,5 +57,6 @@ function create(text, r_id) {
 module.exports = {
     list,
     listPost,
-    create
+    create,
+    createPost
 };
