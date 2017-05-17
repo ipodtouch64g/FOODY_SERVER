@@ -8,12 +8,16 @@ if (!global.db) {
 function list(searchText = '',place = '',category = '',price = 0,ascending = 'no') {
     const order = ascending==='ture'?'ORDER BY average ASC':(ascending ==='false'?'ORDER BY average DESC':'ORDER BY id ASC');
     let where = searchText?`WHERE (address ILIKE '%$1:value%' OR name ILIKE '%$1:value%' OR category ILIKE '%$1:value%')`:'';
-    if(searchText&&place)
-      where+= ` AND address ILIKE '%$2:value%'`;
-    if(searchText&&category)
-      where+= ` AND category ILIKE '%$3:value%'`;
-    if(searchText&&price)
-      where+= ` AND average <= $4 AND average > 0`;
+    if(place)
+      where+= searchText?` AND address ILIKE '%$2:value%'`:`WHERE address ILIKE '%$2:value%'`;
+    if(category)
+      where+= searchText?` AND category ILIKE '%$3:value%'`:(place?` AND category ILIKE '%$3:value%'`:`WHERE category ILIKE '%$3:value%'`);
+    if(price){
+      if(searchText||place||category)
+        where+= ` AND average <= $4 AND average > 0`;
+      else
+        where+= `WHERE average <= $4 AND average > 0`
+    }
     const sql = `
         SELECT *
         FROM restaurant
@@ -21,7 +25,7 @@ function list(searchText = '',place = '',category = '',price = 0,ascending = 'no
         ${order}
         LIMIT 25
     `;
-    console.log (sql, searchText ,place ,category ,price);
+    //console.log (sql, searchText ,place ,category ,price);
     return db.any(sql, [searchText ,place ,category ,price]);
 }
 

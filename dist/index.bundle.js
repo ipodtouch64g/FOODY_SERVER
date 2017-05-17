@@ -12981,10 +12981,10 @@ module.exports = function bind(fn, thisArg) {
 
 
 // Develop server URL
-var postBaseUrl = 'http://localhost:3000/api';
+// const postBaseUrl = 'http://localhost:3000/api';
 
 // Staging server URL
-// const postBaseUrl = 'http://foody.us-west-2.elasticbeanstalk.com/api';
+var postBaseUrl = 'http://foody.us-west-2.elasticbeanstalk.com/api';
 
 // Production server URL
 // const postBaseUrl = 'http://weathermood-production.us-west-2.elasticbeanstalk.com/api';
@@ -31501,7 +31501,7 @@ var SearchList = function (_React$Component) {
                 __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                   'div',
                   { className: 'search-sort' },
-                  this.props.searchText ? __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_4_components_SearchSort_jsx__["a" /* default */], { reSort: this.props.reSort }) : "FOODY |"
+                  __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_4_components_SearchSort_jsx__["a" /* default */], { reSort: this.props.reSort })
                 )
               )
             )
